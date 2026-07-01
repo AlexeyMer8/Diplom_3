@@ -1,11 +1,8 @@
 import pytest
-import requests
-import random
-import string
-import allure
+import helpers
 
 
-from urls import BASE_URL, CREATE_USER_URL, LOGIN_URL
+from urls import BASE_URL, LOGIN_URL
 from selenium import webdriver
 from pages.login_page import LoginPage
 from pages.personal_account_page import PersonalAccountPage
@@ -69,64 +66,4 @@ def login_user(driver):
 
 @pytest.fixture
 def create_user():
-    """
-    Фикстура для создания пользователя через API.
-    Возвращает объект с данными пользователя.
-    
-    Использование:
-        user = create_user()
-        print(user.email, user.password, user.name)
-    """
-    class UserData:
-        """Класс для хранения данных пользователя"""
-        def __init__(self, email, password, name, api_response=None, status_code=None):
-            self.email = email
-            self.password = password
-            self.name = name
-            self.api_response = api_response
-            self.status_code = status_code
-        
-        def __repr__(self):
-            return f"UserData(email='{self.email}', password='{self.password}', name='{self.name}')"
-    
-    def _generate_random_string(length):
-        """Генерация случайной строки"""
-        letters = string.ascii_lowercase
-        return ''.join(random.choice(letters) for i in range(length))
-    
-    def _create_user():
-        """Создание пользователя через API"""
-        # Генерируем данные
-        email = f"{_generate_random_string(10)}@yandex.ru"
-        password = _generate_random_string(10)
-        name = _generate_random_string(10)
-        
-        # Отправляем запрос
-        params = {"email": email, "password": password, "name": name}
-        response = requests.post(f'{CREATE_USER_URL}', data=params)
-        
-        # Проверяем ответ
-        if response.status_code == 200:
-            user_data = response.json()
-            
-            # Логируем в отчет
-            allure.attach(
-                f"Email: {email}\nPassword: {password}\nName: {name}",
-                name="Созданный пользователь",
-                attachment_type=allure.attachment_type.TEXT
-            )
-            
-            # Возвращаем объект с данными
-            return UserData(
-                email=email,
-                password=password,
-                name=name,
-                api_response=user_data,
-                status_code=response.status_code
-            )
-        else:
-            raise Exception(f"Failed to create user: {response.text}")
-    return _create_user
-    
-    
-
+    return helpers.create_test_user
